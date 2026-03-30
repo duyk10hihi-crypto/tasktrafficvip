@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Center</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{
+background:linear-gradient(135deg,#0f172a,#020617);
+color:white;
+font-family:sans-serif;
+}
+</style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+<!-- LOGIN -->
+<div id="loginBox" class="w-full max-w-md bg-slate-900 p-6 rounded-2xl shadow-xl">
+<h1 class="text-xl font-bold text-center mb-6">🔐 Đăng nhập hệ thống</h1>
+
+<input id="username" placeholder="Tài khoản" class="w-full p-3 rounded text-black mb-3">
+<input id="password" type="password" placeholder="Mật khẩu" class="w-full p-3 rounded text-black mb-3">
+
+<label class="flex items-center gap-2 mb-4">
+<input type="checkbox" id="remember"> Ghi nhớ tài khoản
+</label>
+
+<button onclick="login()" class="w-full bg-blue-600 py-3 rounded-xl font-bold">Đăng nhập</button>
+<p id="loginError" class="text-red-400 text-center mt-3 hidden">Sai tài khoản hoặc mật khẩu</p>
+</div>
+
+<!-- MAIN -->
+<div id="taskPage" class="hidden w-full max-w-md bg-slate-900 p-6 rounded-2xl shadow-xl">
+<h1 class="text-2xl font-bold text-center mb-4">🚀 Task Center</h1>
+
+<p id="roleText" class="text-center mb-4 text-yellow-400"></p>
+
+<!-- DEV PANEL -->
+<div id="devPanel" class="hidden mb-4">
+<h2 class="mb-2 font-bold">⚙️ Dev Tools</h2>
+<select id="adminSelect" class="w-full p-2 text-black rounded mb-2">
+<option value="phamquangan">Admin 1</option>
+<option value="nguyenminhkhoa">Admin 2</option>
+</select>
+
+<input id="money" type="number" placeholder="Số tiền" class="w-full p-2 text-black rounded mb-2">
+
+<button onclick="addMoney()" class="w-full bg-green-600 py-2 rounded mb-2">+ Tiền</button>
+<button onclick="minusMoney()" class="w-full bg-yellow-600 py-2 rounded mb-2">- Tiền</button>
+<button onclick="resetPass()" class="w-full bg-red-600 py-2 rounded">Reset Password</button>
+</div>
+
+<!-- ADMIN TASK -->
+<div id="adminPanel">
+<select id="platform" class="w-full p-3 rounded text-black mb-4">
+<option value="traffic">Traffic68</option>
+<option value="link4m">Link4M</option>
+</select>
+
+<button onclick="createTask()" class="w-full bg-blue-600 py-3 rounded-xl font-bold mb-4">Nhận nhiệm vụ</button>
+
+<div id="taskBox" class="hidden">
+<input id="taskLink" class="w-full p-2 rounded text-black mb-3" readonly>
+<button onclick="copyLink()" class="w-full bg-green-600 py-3 rounded-lg">📋 Copy Link</button>
+</div>
+</div>
+
+<button onclick="logout()" class="w-full mt-4 bg-red-600 py-2 rounded-lg">Đăng xuất</button>
+</div>
+
+<script>
+
+const users = [
+{user:"vandinhtuduy",pass:"vandinhtuduy@",role:"dev"},
+{user:"phamquangan",pass:"phamquangan2512",role:"admin",money:0},
+{user:"nguyenminhkhoa",pass:"khoayeukimanh",role:"admin",money:0}
+];
+
+let currentUser=null;
+
+function login(){
+let u=username.value;
+let p=password.value;
+
+let acc=users.find(x=>x.user===u && x.pass===p);
+
+if(acc){
+currentUser=acc;
+localStorage.setItem("loggedUser",JSON.stringify(acc));
+if(remember.checked){
+localStorage.setItem("rememberUser",u);
+}
+showMain();
+}else{
+loginError.classList.remove("hidden");
+}
+}
+
+function showMain(){
+loginBox.classList.add("hidden");
+taskPage.classList.remove("hidden");
+roleText.innerText="Role: "+currentUser.role;
+
+if(currentUser.role==="dev"){
+devPanel.classList.remove("hidden");
+adminPanel.classList.add("hidden");
+}
+}
+
+function logout(){
+localStorage.removeItem("loggedUser");
+location.reload();
+}
+
+/* AUTO LOGIN */
+let saved=localStorage.getItem("loggedUser");
+if(saved){
+currentUser=JSON.parse(saved);
+showMain();
+}
+
+let remembered=localStorage.getItem("rememberUser");
+if(remembered){
+username.value=remembered;
+}
+
+/* DEV FUNCTIONS */
+function getAdmin(){
+let name=adminSelect.value;
+return users.find(x=>x.user===name);
+}
+
+function addMoney(){
+let a=getAdmin();
+a.money+=Number(money.value);
+alert("Đã cộng tiền");
+}
+
+function minusMoney(){
+let a=getAdmin();
+a.money-=Number(money.value);
+alert("Đã trừ tiền");
+}
+
+function resetPass(){
+let a=getAdmin();
+a.pass="123456";
+alert("Reset về 123456");
+}
+
+/* TASK */
+function createTask(){
+let p=platform.value;
+let link="";
+
+if(p==="traffic"){
+if(currentUser.user==="phamquangan") link="https://traffic68.com/vuot-link/rrjn376";
+if(currentUser.user==="nguyenminhkhoa") link="https://traffic68.com/vuot-link/g3j9gda";
+}else{
+if(currentUser.user==="phamquangan") link="https://link4m.net/DzZsvrzH";
+if(currentUser.user==="nguyenminhkhoa") link="https://link4m.com/atT3GgvM";
+}
+
+taskLink.value=link;
+taskBox.classList.remove("hidden");
+}
+
+function copyLink(){
+navigator.clipboard.writeText(taskLink.value);
+alert("Đã copy!");
+}
+
+</script>
+
+</body>
+</html>
